@@ -520,3 +520,59 @@ class RecordForm(forms.ModelForm):
         if value is not None and value < 0:
             raise forms.ValidationError("Количество не может быть отрицательным.")
         return value
+
+
+forms.py
+
+from django import forms
+
+from .models import Record
+
+
+class RecordForm(forms.ModelForm):
+    class Meta:
+        model = Record
+        fields = "__all__"
+        exclude = ("created",)  # created заполняется автоматически, не показываем в форме
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            widget = field.widget
+
+            # Checkbox → Bootstrap form-check-input
+            if isinstance(widget, forms.CheckboxInput):
+                widget.attrs["class"] = (
+                    widget.attrs.get("class", "") + " form-check-input"
+                ).strip()
+
+            # DateTimeField → HTML5 datetime-local
+            elif isinstance(field, forms.DateTimeField):
+                field.widget = forms.DateTimeInput(
+                    attrs={"type": "datetime-local", "class": "form-control"},
+                    format="%Y-%m-%dT%H:%M",
+                )
+                field.input_formats = ["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S"]
+
+            # DateField → HTML5 date (как твой on_date)
+            elif isinstance(field, forms.DateField):
+                field.widget = forms.DateInput(
+                    attrs={"type": "date", "class": "form-control"},
+                    format="%Y-%m-%d",
+                )
+                field.input_formats = ["%Y-%m-%d"]
+
+            # NumberInput (DecimalField, IntegerField) → добавляем step
+            elif isinstance(widget, forms.NumberInput):
+                widget.attrs["class"] = (
+                    widget.attrs.get("class", "") + " form-control"
+                ).strip()
+                # Для DecimalField добавляем step="0.01"
+                if isinstance(field, forms.DecimalField):
+                    widget.attrs["step"] = "0.01"
+
+            # Всё остальное → Bootstrap form-control
+            else:
+                widget.attrs["class"] = (
+                    widget.attrs.get("class", "") + " form-control"
+                ).strip()
