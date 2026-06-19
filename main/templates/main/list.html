@@ -1,0 +1,38 @@
+{% extends "main/layout.html" %}
+{% block head_title %}Список записей{% endblock %}
+{% block main %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Записи</h2>
+    <a class="btn btn-success" href="{% url 'main:add' %}">Новая запись</a>
+</div>
+<div class="card shadow-sm">
+    <table class="table table-striped table-hover align-middle mb-0">
+        <thead style="background-color:#0f766e" class="text-white">
+            <tr><th>#</th><th>Название</th><th>Код</th><th>Сумма</th><th>Активно</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for record in records %}
+            <tr>
+                <td>{{ record.id }}</td>
+                <td>{{ record.name }}</td>
+                <td>{{ record.code }}</td>
+                <td>{{ record.price }}</td>
+                <td>
+                    {% if record.active %}
+                        <span class="badge text-bg-success">да</span>
+                    {% else %}
+                        <span class="badge text-bg-secondary">нет</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" href="{% url 'main:edit' record.id %}">Правка</a>
+                    <a class="btn btn-sm btn-outline-danger" href="{% url 'main:remove' record.id %}">Удалить</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6" class="text-center text-muted">Пока нет записей</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

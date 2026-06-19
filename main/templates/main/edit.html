@@ -1,0 +1,31 @@
+{% extends "main/layout.html" %}
+{% block head_title %}{% if record %}Правка{% else %}Новая запись{% endif %}{% endblock %}
+{% block main %}
+<h2 class="mb-3">{% if record %}Редактирование записи{% else %}Новая запись{% endif %}</h2>
+<div class="card shadow-sm border-0" style="max-width: 540px">
+    <div class="card-header text-white" style="background-color:#0f766e">
+        {% if record %}Изменение записи{% else %}Данные новой записи{% endif %}
+    </div>
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                {% if field.widget_type == 'checkbox' %}
+                    <div class="form-check mb-3">
+                        {{ field }}
+                        <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    </div>
+                {% else %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% for err in field.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <button class="btn btn-primary" type="submit">Сохранить</button>
+            <a class="btn btn-link" href="{% url 'main:list' %}">Назад</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
